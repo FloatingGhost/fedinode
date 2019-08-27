@@ -26,6 +26,7 @@ const pollTimeline = async (instance, token) => {
 const switchTimeline = (newTimeline) => {
     timeline = newTimeline
     minId = undefined
+    console.log("\n".repeat(50))
     console.log(`now browsing ${newTimeline}`)
 }
 
