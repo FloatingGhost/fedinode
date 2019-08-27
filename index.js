@@ -2,7 +2,10 @@ const auth = require("./auth")
 const { post, likeStatus, boostStatus } = require("./post")
 const { pollTimeline, switchTimeline } = require("./timeline")
 const pollNotifications = require("./notifications")
+const state = require("./state-loader")
 const prompts = require("prompts")
+const fetch = require("node-fetch")
+const applyProxy = require("./proxy")
 
 const changeTimeline = async () => {
     const answer = await prompts({
@@ -17,6 +20,14 @@ const changeTimeline = async () => {
     )
     switchTimeline(answer.timeline)
 
+}
+
+const whoami = async (instance, token) => {
+    const resp = await fetch(`https://${instance}/api/v1/accounts/verify_credentials`, applyProxy({
+        headers: { "Authorization": token }
+    }))
+    const out = await resp.json()
+    state.set("username", out.username)
 }
 
 const mainLoop = async (instance, token) => {
@@ -51,6 +62,7 @@ const mainLoop = async (instance, token) => {
 
 
 auth.login().then(async ({ instance, token }) => {
+    await whoami(instance, token)
     pollTimeline(instance, token)
     pollNotifications(instance, token)
 

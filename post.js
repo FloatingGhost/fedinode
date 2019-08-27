@@ -2,6 +2,8 @@ const fetch = require("node-fetch")
 const prompts = require("prompts")
 const applyProxy = require("./proxy")
 const FormData = require("form-data")
+const colors = require("colors")
+const state = require("./state-loader")
 
 const likeStatus = async (instance, token) => {
     const { id } = await prompts(
@@ -15,7 +17,7 @@ const likeStatus = async (instance, token) => {
         headers: { "Authorization": token },
         method: "POST"
     }))
-    console.log(`---\nliked ${id}\n---`)
+    console.log(colors.green(`---\nliked ${id}\n---`))
 }
 
 const boostStatus = async (instance, token) => {
@@ -30,7 +32,7 @@ const boostStatus = async (instance, token) => {
         headers: { "Authorization": token },
         method: "POST"
     }))
-    console.log(`---\nboosted ${id}\n---`)
+    console.log(colors.green(`---\nboosted ${id}\n---`))
 }
 
 const post = async (instance, token) => {
@@ -63,6 +65,7 @@ const post = async (instance, token) => {
                 { title: "public", value: "public" },
                 { title: "unlisted", value: "unlisted" },
                 { title: "private", value: "private" },
+                { title: "direct", value: "direct" }
             ]
         }
     ])
@@ -71,13 +74,30 @@ const post = async (instance, token) => {
 
 const createStatus = async (instance, token, status, visibility, in_reply_to) => {
     let form = new FormData()
-    form.append("status", status)
-    form.append("visibility", visibility)
-    form.append("sensitive", "false")
 
     if (in_reply_to) {
         form.append("in_reply_to_id", in_reply_to)
     }
+    const replied_to_tweet = await fetch(`https://${instance}/api/v1/statuses/${in_reply_to}`, applyProxy({
+        headers: {"Authorization": token}
+    }))
+    if (replied_to_tweet.status != 200) {
+        colors.red(`could not reply to ${in_reply_to}, couldn't fetch it`)
+        return
+    }
+
+    const replied_to_json = await replied_to_tweet.json()
+    const { mentions } = replied_to_json
+    const iam = state.get("username")
+    const additionalMentions = mentions
+        .concat([replied_to_json.account])
+        .filter(mention => mention.username != iam)
+        .map(x => `@${x}`)
+        .join(" ")
+
+    form.append("status", (additionalMentions + status).trim())
+    form.append("visibility", visibility)
+    form.append("sensitive", "false")
 
     const resp  = await fetch(`https://${instance}/api/v1/statuses`, applyProxy({
         headers: {"Authorization": token},
