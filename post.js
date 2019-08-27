@@ -92,10 +92,10 @@ const createStatus = async (instance, token, status, visibility, in_reply_to) =>
     const additionalMentions = mentions
         .concat([replied_to_json.account])
         .filter(mention => mention.username != iam)
-        .map(x => `@${x}`)
+        .map(x => `@${x.acct}`)
         .join(" ")
 
-    form.append("status", (additionalMentions + status).trim())
+    form.append("status", (additionalMentions + " " + status).trim())
     form.append("visibility", visibility)
     form.append("sensitive", "false")
 
