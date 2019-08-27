@@ -1,2 +1,2 @@
-.token.secret
+.*.secret
 node_modules

@@ -2,9 +2,10 @@ const fetch = require("node-fetch")
 const applyProxy = require("./proxy")
 const colors = require("colors/safe")
 const { sleep } = require("./utils")
+const state = require("./state-loader")
 
 const pollNotifications = async (instance, token) => {
-    let minId
+    let minId = state.get("notification-id")
     while (true) {
         let queryString = (minId)?`?since_id=${minId}`:""
 
@@ -17,6 +18,7 @@ const pollNotifications = async (instance, token) => {
         })
         if (out.length != 0) {
             minId = out[out.length - 1].id
+            state.set("notification-id", minId)
         }
 
         await sleep(5000)
