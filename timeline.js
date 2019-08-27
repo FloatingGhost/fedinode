@@ -1,5 +1,6 @@
 const fetch = require("node-fetch")
 const applyProxy = require("./proxy")
+const colors = require("colors")
 
 let timeline = "home"
 let minId
@@ -36,9 +37,9 @@ function sleep(ms){
 
 const formatStatus = ({ id, account: { acct }, content, pleroma }) => {
     if (pleroma.content && pleroma.content["text/plain"]) {
-        return `\n(${id}) ${acct}: ${pleroma.content["text/plain"]}`
+        return `\n${colors.green(acct)} (${id})\n${pleroma.content["text/plain"]}`
     } else {
-        return `\n(${id}) ${acct}: ${content}`
+        return `\n${colors.green(acct)} (${id})\n${content}`
     }
 }
 
