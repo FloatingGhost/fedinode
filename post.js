@@ -3,6 +3,36 @@ const prompts = require("prompts")
 const applyProxy = require("./proxy")
 const FormData = require("form-data")
 
+const likeStatus = async (instance, token) => {
+    const { id } = await prompts(
+        {
+            type: "text",
+            name: "id",
+            message: "id to like"
+        })
+
+    await fetch(`https://${instance}/api/v1/statuses/${id}/favourite`, applyProxy({
+        headers: { "Authorization": token },
+        method: "POST"
+    }))
+    console.log(`---\nliked ${id}\n---`)
+}
+
+const boostStatus = async (instance, token) => {
+    const { id } = await prompts(
+        {
+            type: "text",
+            name: "id",
+            message: "id to boost"
+        })
+
+    await fetch(`https://${instance}/api/v1/statuses/${id}/reblog`, applyProxy({
+        headers: { "Authorization": token },
+        method: "POST"
+    }))
+    console.log(`---\nboosted ${id}\n---`)
+}
+
 const post = async (instance, token) => {
     const { body, visibility, in_reply_to } = await prompts([
         {
@@ -60,4 +90,4 @@ const createStatus = async (instance, token, status, visibility, in_reply_to) =>
 }
 
 
-module.exports = { post }
+module.exports = { post, likeStatus, boostStatus }

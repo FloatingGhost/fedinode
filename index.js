@@ -1,5 +1,5 @@
 const auth = require("./auth")
-const { post } = require("./post")
+const { post, likeStatus, boostStatus } = require("./post")
 const { pollTimeline, switchTimeline } = require("./timeline")
 const prompts = require("prompts")
 
@@ -25,7 +25,9 @@ const mainLoop = async (instance, token) => {
         message: "action",
         choices: [
             { title: "post", value: async () => await post(instance, token) },
-            { title: "switch timeline", value: changeTimeline }
+            { title: "switch timeline", value: changeTimeline },
+            { title: "like", value: async () => await likeStatus(instance, token) },
+            { title: "boost" , value: async () => await boostStatus(instance, token) }
         ]
     }
     )
