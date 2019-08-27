@@ -1,11 +1,13 @@
 const fetch = require("node-fetch")
 const applyProxy = require("./proxy")
 
+let timeline = "home"
+let minId
+
 const pollTimeline = async (instance, token) => {
-    let minId
     while (true) {
         const queryString = (minId)?`?since_id=${minId}`:""
-        const resp = await fetch(`https://${instance}/api/v1/timelines/home${queryString}`, applyProxy({
+        const resp = await fetch(`https://${instance}/api/v1/timelines/${timeline}${queryString}`, applyProxy({
             headers: { "Authorization": token, "content-type": "application/json" }
         }))
         const out = await resp.json()
@@ -18,6 +20,11 @@ const pollTimeline = async (instance, token) => {
 
         await sleep(5000)        
     }
+}
+
+const switchTimeline = (newTimeline) => {
+    timeline = newTimeline
+    minId = undefined
 }
 
 function sleep(ms){
@@ -34,4 +41,4 @@ const formatStatus = ({ account: { acct }, content, pleroma }) => {
     }
 }
 
-module.exports = pollTimeline
+module.exports = { pollTimeline, switchTimeline }
