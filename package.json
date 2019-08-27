@@ -1,0 +1,15 @@
+{
+  "name": "fedinode",
+  "version": "1.0.0",
+  "description": "a node client for the fediverse for... reasons?",
+  "main": "index.js",
+  "author": "Sadposter",
+  "license": "MIT",
+  "dependencies": {
+    "form-data": "^2.5.0",
+    "https-proxy-agent": "^2.2.2",
+    "node-fetch": "^2.6.0",
+    "prompts": "^2.2.1",
+    "url-search-params": "^1.1.0"
+  }
+}
