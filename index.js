@@ -27,7 +27,11 @@ const mainLoop = async (instance, token) => {
             { title: "post", value: async () => await post(instance, token) },
             { title: "switch timeline", value: changeTimeline },
             { title: "like", value: async () => await likeStatus(instance, token) },
-            { title: "boost" , value: async () => await boostStatus(instance, token) }
+            { title: "boost" , value: async () => await boostStatus(instance, token) },
+            { title: "quit", value: async () => { 
+                console.log("byebye now")
+                process.exit(1) 
+            }}
         ]
     }
     )
