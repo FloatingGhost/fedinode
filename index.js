@@ -30,7 +30,12 @@ const mainLoop = async (instance, token) => {
     }
     )
 
-    await answer.action()
+    if (answer.action) {
+        await answer.action()
+    } else {
+        console.log("No action found...")
+        throw "cancelled by user"
+    }
 }
 
 
@@ -38,6 +43,12 @@ auth.login().then(async ({ instance, token }) => {
     pollTimeline(instance, token)
 
     while (1) {
-        await mainLoop(instance, token)
+        try {
+            await mainLoop(instance, token)
+        } catch (e) {
+            console.log(e)
+            process.exit(1)
+            break
+        }
     }
 })

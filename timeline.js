@@ -25,6 +25,7 @@ const pollTimeline = async (instance, token) => {
 const switchTimeline = (newTimeline) => {
     timeline = newTimeline
     minId = undefined
+    console.log(`now browsing ${newTimeline}`)
 }
 
 function sleep(ms){
@@ -33,11 +34,11 @@ function sleep(ms){
     })
 }
 
-const formatStatus = ({ account: { acct }, content, pleroma }) => {
+const formatStatus = ({ id, account: { acct }, content, pleroma }) => {
     if (pleroma.content && pleroma.content["text/plain"]) {
-        return `${acct}: ${pleroma.content["text/plain"]}`
+        return `(${id}) ${acct}: ${pleroma.content["text/plain"]}`
     } else {
-        return `${acct}: ${content}`
+        return `(${id}) ${acct}: ${content}`
     }
 }
 
