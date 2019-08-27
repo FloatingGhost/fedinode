@@ -12,7 +12,7 @@ const pollTimeline = async (instance, token) => {
         }))
         const out = await resp.json()
         out.reverse().forEach(status => {
-            console.log(formatStatus(status) + "\n")
+            console.log(formatStatus(status))
         })
         if (out.length != 0) {
             minId = out[out.length - 1].id
@@ -36,9 +36,9 @@ function sleep(ms){
 
 const formatStatus = ({ id, account: { acct }, content, pleroma }) => {
     if (pleroma.content && pleroma.content["text/plain"]) {
-        return `(${id}) ${acct}: ${pleroma.content["text/plain"]}`
+        return `\n(${id}) ${acct}: ${pleroma.content["text/plain"]}`
     } else {
-        return `(${id}) ${acct}: ${content}`
+        return `\n(${id}) ${acct}: ${content}`
     }
 }
 

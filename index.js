@@ -1,6 +1,7 @@
 const auth = require("./auth")
 const { post, likeStatus, boostStatus } = require("./post")
 const { pollTimeline, switchTimeline } = require("./timeline")
+const pollNotifications = require("./notifications")
 const prompts = require("prompts")
 
 const changeTimeline = async () => {
@@ -37,7 +38,11 @@ const mainLoop = async (instance, token) => {
     )
 
     if (answer.action) {
-        await answer.action()
+        try {
+            await answer.action()
+        } catch (e) {
+            console.error("failed, you probably cancelled")
+        }
     } else {
         console.log("No action found...")
         throw "cancelled by user"
@@ -47,6 +52,7 @@ const mainLoop = async (instance, token) => {
 
 auth.login().then(async ({ instance, token }) => {
     pollTimeline(instance, token)
+    pollNotifications(instance, token)
 
     while (1) {
         try {

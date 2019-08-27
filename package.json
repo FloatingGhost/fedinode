@@ -6,6 +6,7 @@
   "author": "Sadposter",
   "license": "MIT",
   "dependencies": {
+    "colors": "^1.3.3",
     "form-data": "^2.5.0",
     "https-proxy-agent": "^2.2.2",
     "node-fetch": "^2.6.0",
