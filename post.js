@@ -74,26 +74,28 @@ const post = async (instance, token) => {
 
 const createStatus = async (instance, token, status, visibility, in_reply_to) => {
     let form = new FormData()
+    let additionalMentions = ""
 
     if (in_reply_to) {
         form.append("in_reply_to_id", in_reply_to)
-    }
-    const replied_to_tweet = await fetch(`https://${instance}/api/v1/statuses/${in_reply_to}`, applyProxy({
-        headers: {"Authorization": token}
-    }))
-    if (replied_to_tweet.status != 200) {
-        colors.red(`could not reply to ${in_reply_to}, couldn't fetch it`)
-        return
+        const replied_to_tweet = await fetch(`https://${instance}/api/v1/statuses/${in_reply_to}`, applyProxy({
+            headers: {"Authorization": token}
+        }))
+        if (replied_to_tweet.status != 200) {
+            console.log(colors.red(`could not reply to ${in_reply_to}, couldn't fetch it`))
+            return
+        }
+
+        const replied_to_json = await replied_to_tweet.json()
+        const { mentions } = replied_to_json
+        const iam = state.get("username")
+        additionalMentions = (mentions || [])
+            .concat([replied_to_json.account])
+            .filter(mention => mention.username != iam)
+            .map(x => `@${x.acct}`)
+            .join(" ")
     }
 
-    const replied_to_json = await replied_to_tweet.json()
-    const { mentions } = replied_to_json
-    const iam = state.get("username")
-    const additionalMentions = mentions
-        .concat([replied_to_json.account])
-        .filter(mention => mention.username != iam)
-        .map(x => `@${x.acct}`)
-        .join(" ")
 
     form.append("status", (additionalMentions + " " + status).trim())
     form.append("visibility", visibility)
@@ -105,7 +107,9 @@ const createStatus = async (instance, token, status, visibility, in_reply_to) =>
         body: form
     })
     )
+    console.debug(`Status: ${resp.status}`)
     const out = await resp.json()
+
     return out
 }
 
