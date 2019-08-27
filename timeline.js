@@ -35,11 +35,11 @@ function sleep(ms){
     })
 }
 
-const formatStatus = ({ id, account: { acct }, content, pleroma }) => {
+const formatStatus = ({ id, account: { acct }, visibility, content, pleroma }) => {
     if (pleroma.content && pleroma.content["text/plain"]) {
-        return `\n${colors.green(acct)} (${id})\n${pleroma.content["text/plain"]}`
+        return `\n${colors.green(acct)} (${id}) :: ${visibility}\n${pleroma.content["text/plain"]}`
     } else {
-        return `\n${colors.green(acct)} (${id})\n${content}`
+        return `\n${colors.green(acct)} (${id}) :: ${visibility}\n${content}`
     }
 }
 
