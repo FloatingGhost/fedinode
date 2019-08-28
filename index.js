@@ -53,6 +53,7 @@ const mainLoop = async (instance, token) => {
             await answer.action()
         } catch (e) {
             console.error("failed, you probably cancelled")
+            console.error(e)
         }
     } else {
         console.log("No action found...")

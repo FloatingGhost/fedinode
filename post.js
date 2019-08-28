@@ -4,6 +4,7 @@ const applyProxy = require("./proxy")
 const FormData = require("form-data")
 const colors = require("colors")
 const state = require("./state-loader")
+const fs = require("fs")
 
 const likeStatus = async (instance, token) => {
     const { id } = await prompts(
@@ -36,7 +37,7 @@ const boostStatus = async (instance, token) => {
 }
 
 const post = async (instance, token) => {
-    const { body, visibility, in_reply_to } = await prompts([
+    const choices = await prompts([
         {
             type: "select",
             name: "reply",
@@ -53,9 +54,31 @@ const post = async (instance, token) => {
         },
         {
             type: "text",
-            name: "body",
+            name: "status",
             message: "status",
             validate: value => value.length == 0 ? "Can't post an empty status":true
+        },
+        { 
+            type: "toggle",
+            message: "add image(s)?",
+            name: "addImages",
+            active: "yes",
+            initial: false,
+            inactive: "no"
+        },
+        {
+            type: prev => prev == true ? "list":null,
+            name: "imagePaths",
+            message: "image paths, relative or absolute (sep ,)",
+            separator: ","
+        },
+        {
+            type: prev => prev.length > 0 ? "toggle":null,
+            message: "mark sensitive?",
+            name: "sensitive",
+            active: "yes",
+            initial: false,
+            inactive: "no"
         },
         {
             type: "select",
@@ -69,10 +92,29 @@ const post = async (instance, token) => {
             ]
         }
     ])
-    return await createStatus(instance, token, body, visibility, in_reply_to)
+    return await createStatus(instance, token, choices)
 }
 
-const createStatus = async (instance, token, status, visibility, in_reply_to) => {
+const uploadMedia = async (instance, token, path) => {
+    colors.yellow(`Uploading ${path}...`)
+    if (!fs.existsSync(path)) {
+        throw `file ${path} does not exist`
+    }
+
+    const formData = new FormData()
+    const f = fs.createReadStream(path)
+    formData.append("file", f)
+
+    const result = await fetch(`https://${instance}/api/v1/media`, applyProxy({
+        headers: { "Authorization": token },
+        method: "POST",
+        body: formData
+    }))
+    const { id } = await result.json()
+    return id
+}
+
+const createStatus = async (instance, token, { status, visibility, in_reply_to, addImages, imagePaths, sensitive }) => {
     let form = new FormData()
     let additionalMentions = ""
 
@@ -96,10 +138,17 @@ const createStatus = async (instance, token, status, visibility, in_reply_to) =>
             .join(" ")
     }
 
+    if (addImages) {
+        const ids = await Promise.all(imagePaths.map(async (path) => {
+            return await uploadMedia(instance, token, path)
+        }))
+        form.append("media_ids[]", ids.toString())
+        form.append("sensitive", sensitive.toString())
+    }
+
 
     form.append("status", (additionalMentions + " " + status).trim())
     form.append("visibility", visibility)
-    form.append("sensitive", "false")
 
     const resp  = await fetch(`https://${instance}/api/v1/statuses`, applyProxy({
         headers: {"Authorization": token},
