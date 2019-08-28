@@ -56,7 +56,8 @@ const post = async (instance, token) => {
             type: "text",
             name: "status",
             message: "status",
-            validate: value => value.length == 0 ? "Can't post an empty status":true
+            validate: value => value.length == 0 ? "Can't post an empty status":true,
+            multiline: true
         },
         { 
             type: "toggle",

@@ -7,16 +7,21 @@ let minId
 
 const pollTimeline = async (instance, token) => {
     while (true) {
-        const queryString = (minId)?`?since_id=${minId}`:""
-        const resp = await fetch(`https://${instance}/api/v1/timelines/${timeline}${queryString}`, applyProxy({
-            headers: { "Authorization": token, "content-type": "application/json" }
-        }))
-        const out = await resp.json()
-        out.reverse().forEach(status => {
-            console.log(formatStatus(status))
-        })
-        if (out.length != 0) {
-            minId = out[out.length - 1].id
+        try {
+            const queryString = (minId)?`?since_id=${minId}`:""
+            const resp = await fetch(`https://${instance}/api/v1/timelines/${timeline}${queryString}`, applyProxy({
+                headers: { "Authorization": token, "content-type": "application/json" }
+            }))
+            const out = await resp.json()
+            out.reverse().forEach(status => {
+                console.log(formatStatus(status))
+            })
+            if (out.length != 0) {
+                minId = out[out.length - 1].id
+            }
+        } catch (e) {
+            console.error("error polling timeline")
+            console.error(e)
         }
 
         await sleep(5000)        
