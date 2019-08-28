@@ -32,7 +32,7 @@ const formatNotification = ({ type, account }) => {
         case "reblog":
             return colors.yellow(`${account.display_name} boosted your status`)
         case "follow":
-            return colors.purple(`${account.display_name} followed you`)
+            return colors.red(`${account.display_name} followed you`)
         case "mention":
             return colors.blue(`${account.display_name} mentioned you`)
     }
