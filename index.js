@@ -1,11 +1,12 @@
 const auth = require("./auth")
-const { post, likeStatus, boostStatus } = require("./post")
+const { post, likeStatus, boostStatus, getStatus } = require("./post")
 const { pollTimeline, switchTimeline } = require("./timeline")
 const pollNotifications = require("./notifications")
 const state = require("./state-loader")
 const prompts = require("prompts")
 const fetch = require("node-fetch")
 const applyProxy = require("./proxy")
+const { spawn } = require("child_process")
 
 const changeTimeline = async () => {
     const answer = await prompts({
@@ -30,6 +31,22 @@ const whoami = async (instance, token) => {
     state.set("username", out.username)
 }
 
+const viewAttachments = async (instance, token) => {
+    const { id } = await prompts({
+        type: "text",
+        name: "id",
+        message: "post id to view"
+    })
+
+    const post = await getStatus(instance, token, id)
+    const out = await post.json()
+    out.media_attachments.forEach(attachment => {
+        spawn("open", [attachment.remote_url])
+    })
+}
+
+
+
 const mainLoop = async (instance, token) => {
     const answer = await prompts({
         type: "select",
@@ -37,6 +54,7 @@ const mainLoop = async (instance, token) => {
         message: "action",
         choices: [
             { title: "post", value: async () => await post(instance, token) },
+            { title: "open attachments", value: async () => await viewAttachments(instance, token) },
             { title: "switch timeline", value: changeTimeline },
             { title: "like", value: async () => await likeStatus(instance, token) },
             { title: "boost" , value: async () => await boostStatus(instance, token) },

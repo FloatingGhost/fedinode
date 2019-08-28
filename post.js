@@ -115,15 +115,19 @@ const uploadMedia = async (instance, token, path) => {
     return id
 }
 
+const getStatus = async (instance, token, id) => {
+    return await fetch(`https://${instance}/api/v1/statuses/${id}`, applyProxy({
+        headers: {"Authorization": token}
+    }))
+}
+
 const createStatus = async (instance, token, { status, visibility, in_reply_to, addImages, imagePaths, sensitive }) => {
     let form = new FormData()
     let additionalMentions = ""
 
     if (in_reply_to) {
         form.append("in_reply_to_id", in_reply_to)
-        const replied_to_tweet = await fetch(`https://${instance}/api/v1/statuses/${in_reply_to}`, applyProxy({
-            headers: {"Authorization": token}
-        }))
+        const replied_to_tweet = getStatus(instance, token, in_reply_to)
         if (replied_to_tweet.status != 200) {
             console.log(colors.red(`could not reply to ${in_reply_to}, couldn't fetch it`))
             return
@@ -164,4 +168,4 @@ const createStatus = async (instance, token, { status, visibility, in_reply_to, 
 }
 
 
-module.exports = { post, likeStatus, boostStatus }
+module.exports = { post, likeStatus, boostStatus, getStatus }
