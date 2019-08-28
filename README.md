@@ -14,6 +14,11 @@ yarn
 node index.js
 ```
 
+## what it looks like
+
+| ---- | ------ |
+![]("./screenshot.png") | ![]("./beautiful.jpg") |
+
 ## things you can do
 
 - post a status
