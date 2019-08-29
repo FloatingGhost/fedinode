@@ -14,12 +14,18 @@ const likeStatus = async (instance, token) => {
             message: "id to like"
         })
 
-    await fetch(`https://${instance}/api/v1/statuses/${id}/favourite`, applyProxy({
+    const resp = await fetch(`https://${instance}/api/v1/statuses/${id}/favourite`, applyProxy({
         headers: { "Authorization": token },
         method: "POST"
     }))
-    console.log(colors.green(`---\nliked ${id}\n---`))
+
+    if (resp.status == 200) {
+        console.log(colors.green(`---\nliked ${id}\n---`))
+    } else {
+        console.log(colors.red(`could not like ${id}, status ${resp.status}`))
+    }
 }
+
 
 const boostStatus = async (instance, token) => {
     const { id } = await prompts(
@@ -29,11 +35,16 @@ const boostStatus = async (instance, token) => {
             message: "id to boost"
         })
 
-    await fetch(`https://${instance}/api/v1/statuses/${id}/reblog`, applyProxy({
+    const resp = await fetch(`https://${instance}/api/v1/statuses/${id}/reblog`, applyProxy({
         headers: { "Authorization": token },
         method: "POST"
     }))
-    console.log(colors.green(`---\nboosted ${id}\n---`))
+
+    if (resp.status == 200) {
+        console.log(colors.green(`---\nboosted ${id}\n---`))
+    } else {
+        console.log(colors.red(`could not like ${id}, status ${resp.status}`))
+    }
 }
 
 const post = async (instance, token) => {
