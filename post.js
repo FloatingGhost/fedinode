@@ -131,7 +131,6 @@ const getStatus = async (instance, token, id) => {
         headers: {"Authorization": token}
     }))
 }
-
 const createStatus = async (instance, token, { status, visibility, in_reply_to, addImages, imagePaths, sensitive }) => {
     let form = new FormData()
     let additionalMentions = ""
@@ -148,10 +147,10 @@ const createStatus = async (instance, token, { status, visibility, in_reply_to, 
         const replied_to_json = await replied_to_tweet.json()
         const { mentions } = replied_to_json
         const iam = state.get("username")
-        additionalMentions = (mentions || [])
+        additionalMentions = new Set((mentions || [])
             .concat([replied_to_json.account])
             .filter(mention => mention.username != iam)
-            .map(x => `@${x.acct}`)
+            .map(x => `@${x.acct}`))
             .join(" ")
     }
 
