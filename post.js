@@ -55,7 +55,7 @@ const post = async (instance, token) => {
         {
             type: "text",
             name: "status",
-            message: "status",
+            message: "status (\\n for a line break)",
             validate: value => value.length == 0 ? "Can't post an empty status":true,
             multiline: true
         },
@@ -127,8 +127,9 @@ const createStatus = async (instance, token, { status, visibility, in_reply_to, 
 
     if (in_reply_to) {
         form.append("in_reply_to_id", in_reply_to)
-        const replied_to_tweet = getStatus(instance, token, in_reply_to)
+        const replied_to_tweet = await getStatus(instance, token, in_reply_to)
         if (replied_to_tweet.status != 200) {
+            console.log(replied_to_tweet.status)
             console.log(colors.red(`could not reply to ${in_reply_to}, couldn't fetch it`))
             return
         }
@@ -152,7 +153,7 @@ const createStatus = async (instance, token, { status, visibility, in_reply_to, 
     }
 
 
-    form.append("status", (additionalMentions + " " + status).trim())
+    form.append("status", (additionalMentions + " " + status.replace(/\\n/g, "\n")).trim())
     form.append("visibility", visibility)
 
     const resp  = await fetch(`https://${instance}/api/v1/statuses`, applyProxy({
